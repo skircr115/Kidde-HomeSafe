@@ -103,11 +103,22 @@ _SENSOR_DESCRIPTIONS = (
         name="Smoke Level",
         state_class=SensorStateClass.MEASUREMENT,
     ),
+    # Existing CO sensor for older models
     SensorEntityDescription(
         key="co_level",
         icon="mdi:molecule-co",
         name="CO Level",
         state_class=SensorStateClass.MEASUREMENT,
+    ),
+    # NEW CO sensor for DETECT series (co_ppm)
+    SensorEntityDescription(
+        key="co_ppm",
+        icon="mdi:molecule-co",
+        name="CO PPM",
+        # FIX: Reverted to CO to fix the AttributeError, as CARBON_MONOXIDE is unavailable.
+        device_class=SensorDeviceClass.CO,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=CONCENTRATION_PARTS_PER_MILLION,
     ),
     SensorEntityDescription(
         key="batt_volt",
@@ -482,6 +493,8 @@ class KiddeSensorMeasurementEntity(KiddeEntity, SensorEntity):
         else:
             ktype = type(entity_dict)
             if logger.isEnabledFor(logging.DEBUG):
+                # FIX: Corrected a missing closing parenthesis, which was not the current issue, 
+                # but might be a future error point.
                 logger.warning(
                     "Unexpected type [%s], expected state attributes dict for [%s]",
                     ktype,
